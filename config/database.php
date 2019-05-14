@@ -1,5 +1,5 @@
 <?php
-// 环境配置数据库参数
+// heroku环境数据库配置参数
 $db_config = get_db_config();
 return [
 
