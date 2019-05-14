@@ -13,7 +13,9 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        // 异常信息默认会打印到日志里
+        // 但是我们现在使用自定义的异常处理所以取消邮箱验证日志打印
+        InvalidRequestException::class,
     ];
 
     /**
