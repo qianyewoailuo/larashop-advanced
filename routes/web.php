@@ -25,9 +25,7 @@ Route::group(['middleware'=>'auth'],function(){
 
     // CheckEmailVerified 中间件测试开始
     Route::group(['middleware'=>'email_verified'],function(){
-        Route::get('/test',function(){
-            return '邮箱已验证';
-        });
+        Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
     });
     // 结束
 
