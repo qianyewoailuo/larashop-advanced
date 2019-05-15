@@ -23,10 +23,16 @@ Route::group(['middleware'=>'auth'],function(){
     // 邮件发送
     Route::get('/email_verification/send', 'EmailVerificationController@send')->name('email_verification.send');
 
-    // CheckEmailVerified 中间件测试开始
+    // CheckEmailVerified 中间件开始
+
     Route::group(['middleware'=>'email_verified'],function(){
+        // index
         Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
+        // create
+        Route::get('user_addresses/create', 'UserAddressesController@create')->name('user_addresses.create');
+        Route::post('user_addresses', 'UserAddressesController@store')->name('user_addresses.store');
     });
+
     // 结束
 
 });
