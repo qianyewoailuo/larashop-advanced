@@ -30,7 +30,14 @@ Route::group(['middleware'=>'auth'],function(){
         Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
         // create
         Route::get('user_addresses/create', 'UserAddressesController@create')->name('user_addresses.create');
+        // store
         Route::post('user_addresses', 'UserAddressesController@store')->name('user_addresses.store');
+        // edit
+        Route::get('user_addresses/{user_address}','UserAddressesController@edit')->name('user_addresses.edit');
+        // update
+        Route::put('user_addresses/{user_address}', 'UserAddressesController@update')->name('user_addresses.update');
+        // delete
+        Route::delete('user_addresses/{user_address}', 'UserAddressesController@destroy')->name('user_addresses.destroy');
     });
 
     // 结束
