@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\AddCartRequest;
 use App\Models\CartItem;
+use App\Models\ProductSku;
 
 class CartController extends Controller
 {
+    // 商品入库
     public function add(AddCartRequest $request)
     {
         $user   = $request->user();
@@ -29,6 +31,24 @@ class CartController extends Controller
             $cart->productSku()->associate($skuId);
             $cart->save();
         }
+
+        return [];
+    }
+
+    // 购物车列表
+    public function index(Request $request)
+    {
+        // 为了解决 N+1 问题在获取关联数据时使用 with 预加载
+        // 而Laravel支持通过 . 的方式加载多层级的关联关系
+        // 于是就有了 with(['productSku.product']) 这段代码
+        $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
+
+        return view('cart.index',compact('cartItems'));
+    }
+    // 移除购物车商品
+    public function remove(ProductSku $sku,Request $request)
+    {
+        $request->user()->cartItems()->where('product_sku_id',$sku->id)->delete();
 
         return [];
     }
