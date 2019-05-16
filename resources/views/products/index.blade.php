@@ -28,9 +28,13 @@
                     <div class="col-xs-3 product-item">
                         <div class="product-content">
                             <div class="top">
-                                <div class="img"><img src="{{ $product->image_url }}" alt="{{ $product->title }}"></div>
+                                <div class="img">
+                                    <a href="{{ route('products.show',$product->id) }}">
+                                        <img src="{{ $product->image_url }}" alt="{{ $product->title }}">
+                                    </a>
+                                </div>
                                 <div class="price"><b>￥</b>{{ $product->price }}</div>
-                                <div class="title">{{ $product->title }}</div>
+                                <div class="title"><a href="{{ route('products.show',$product->id) }}">{{ $product->title }}</a></div>
                             </div>
                             <div class="bottom">
                                 <div class="sold_count">销量 <span>{{ $product->sold_count }}笔</span></div>
@@ -51,8 +55,7 @@
 @endsection
 @section('scriptsAfterJs')
 <script>
-    var filters = {!!json_encode($filters) !!};
-    console.log(filters);
+    var filters = {!! json_encode($filters) !!};
     $(document).ready(function() {
         // 保留filters参数
         $('.search-form input[name=search]').val(filters.search);

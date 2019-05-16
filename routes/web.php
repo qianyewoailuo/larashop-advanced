@@ -15,6 +15,7 @@
 // 将默认首页直接指向商品页面 并且访客皆可访问
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
+Route::get('products/{product}','ProductsController@show')->name('products.show');
 
 Auth::routes();
 
