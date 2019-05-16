@@ -22,13 +22,13 @@
                             <label>选择</label>
                             <div class="btn-group" data-toggle="buttons">
                                 @foreach($product->skus as $sku)
-                                <label class="btn btn-default sku-btn" data-price="{{ $sku->price }}" data-stock="{{ $sku->stock }}" data-toggle="tooltip" title="{{ $sku->description }}" data-placement="bottom">
+                                <label class="btn btn-default sku-btn {{ $default_sku->id == $sku->id?'active':'' }}" data-price="{{ $sku->price }}" data-stock="{{ $sku->stock }}" data-toggle="tooltip" title="{{ $sku->description }}" data-placement="bottom">
                                     <input type="radio" name="skus" autocomplete="off" value="{{ $sku->id }}"> {{ $sku->title }}
                                 </label>
                                 @endforeach
                             </div>
                         </div>
-                        <div class="cart_amount"><label>数量</label><input type="text" class="form-control input-sm" value="1"><span>件</span><span class="stock"></span></div>
+                        <div class="cart_amount"><label>数量</label><input type="text" class="form-control input-sm" value="1"><span>件</span><span class="stock">库存：{{$default_sku->stock}}件</span></div>
                         <div class="buttons">
                             <button class="btn btn-success btn-favor">❤ 收藏</button>
                             <button class="btn btn-primary btn-add-to-cart">加入购物车</button>
