@@ -60,9 +60,44 @@ class ProductsController extends Controller
         if (!$product->on_sale) {
             throw new InvalidRequestException('商品未上架');
         }
+
+        // 设置默认未收藏
+        $favored = false;
+        // 判断当前浏览者是否已登录
+        if($user = $request->user()){
+            // 查找当前登录用户的收藏中是否有当前id的商品
+            // boolval是将结果转换为布尔类型
+            // 多对多的find方法中的参数是关联的对象ID,这里找寻对应ID商品是否存在
+            $favored = boolval($user->favoriteProducts()->find($product->id));
+        }
+
+
         // 默认单品属性选中展示
         $default_sku = $product->skus()->where('price', $product->price)->first();
 
-        return view('products.show', compact('product','default_sku'));
+        return view('products.show', compact('product', 'default_sku','favored'));
+    }
+
+    public function favor(Product $product, Request $request)
+    {
+        $user = $request->user();
+        if ($user->favoriteProducts()->find($product->id)) {
+            // 如果该商品已收藏则不做任何操作
+            // 这里的 return [] 是因为前段使用了ajax请求进行处理
+            return [];
+        }
+        // attach() 方法将当前用户和此商品关联起来
+        // attach() 方法的参数可以是模型的 id，也可以是模型对象本身，因此这里还可以写成 attach($product->id)
+        $user->favoriteProducts()->attach($product);
+
+        return [];
+    }
+
+    public function disfavor(Product $product, Request $request)
+    {
+        $user = $request->user();
+        $user->favoriteProducts()->detach($product);
+
+        return [];
     }
 }
