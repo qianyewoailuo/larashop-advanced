@@ -54,9 +54,16 @@ body {
 
 /* 商品列表页样式 */
 .products-index-page {
-    .pagination{
+    .pagination {
         margin-right: 5px;
     }
+
+    .search-form {
+        padding: 0 20px 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
     .products-list {
         padding: 0 15px;
 
