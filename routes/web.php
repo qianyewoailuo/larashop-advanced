@@ -15,7 +15,6 @@
 // 将默认首页直接指向商品页面 并且访客皆可访问
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
-Route::get('products/{product}','ProductsController@show')->name('products.show');
 
 Auth::routes();
 
@@ -30,6 +29,7 @@ Route::group(['middleware'=>'auth'],function(){
     // CheckEmailVerified 中间件开始
 
     Route::group(['middleware'=>'email_verified'],function(){
+        // UserAddresses :
         // index
         Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
         // create
@@ -42,12 +42,17 @@ Route::group(['middleware'=>'auth'],function(){
         Route::put('user_addresses/{user_address}', 'UserAddressesController@update')->name('user_addresses.update');
         // delete
         Route::delete('user_addresses/{user_address}', 'UserAddressesController@destroy')->name('user_addresses.destroy');
+
+        // Products :
         // favor
         Route::post('products/{product}/favorite','ProductsController@favor')->name('products.favor');
         // disfavor
         Route::delete('products/{product}/favorite', 'ProductsController@disfavor')->name('products.disfavor');
+        // favorites 收藏商品列表
+        Route::get('products/favorites', 'ProductsController@favorites')->name('products.favorites');
     });
 
     // 结束
-
 });
+
+Route::get('products/{product}','ProductsController@show')->name('products.show');
