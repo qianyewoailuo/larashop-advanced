@@ -58,6 +58,10 @@ Route::group(['middleware'=>'auth'],function(){
         Route::get('cart', 'CartController@index')->name('cart.index');
         // 移除购物车商品
         Route::delete('cart/{sku}', 'CartController@remove')->name('cart.remove');
+
+        // Order 订单路由
+        // 保存创建订单
+        Route::post('orders', 'OrdersController@store')->name('orders.store');
     });
 
     // 结束

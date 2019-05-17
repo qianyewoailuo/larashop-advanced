@@ -46,7 +46,7 @@ class Order extends Model
         'ship_data',
         'extra',
     ];
-
+    // 入库时自动转换为对应格式
     protected $casts = [
         'closed'    => 'boolean',
         'reviewed'  => 'boolean',
@@ -54,7 +54,7 @@ class Order extends Model
         'ship_data' => 'json',
         'extra'     => 'json',
     ];
-
+    // 获取时自动转换为时间对象
     protected $dates = [
         'paid_at',
     ];

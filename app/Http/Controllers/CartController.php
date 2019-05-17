@@ -42,8 +42,10 @@ class CartController extends Controller
         // 而Laravel支持通过 . 的方式加载多层级的关联关系
         // 于是就有了 with(['productSku.product']) 这段代码
         $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
+        // 用户收货地址
+        $addresses = $request->user()->addresses()->orderBy('last_used_at','desc')->get();
 
-        return view('cart.index',compact('cartItems'));
+        return view('cart.index',compact('cartItems','addresses'));
     }
     // 移除购物车商品
     public function remove(ProductSku $sku,Request $request)
