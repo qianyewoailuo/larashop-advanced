@@ -14,16 +14,33 @@ use App\Jobs\CloseOrder;
 
 class OrdersController extends Controller
 {
+    // 订单列表
     public function index(Request $request)
     {
         $orders = Order::query()
-            // 使用 with 方法预加载，避免N + 1问题
+            // 使用 with 方法预加载，避免 N + 1 问题
             ->with(['items.product', 'items.productSku'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->paginate();
 
         return view('orders.index', compact('orders'));
+    }
+    // 订单详情页
+    public function show(Order $order , Request $request)
+    {
+        $this->authorize('own',$order);
+
+        // load() 方法是延迟预加载 与预加载 with() 方法类似 都是避免 N+1 问题
+        // 不同在于 load() 方法应用在已查询到的模型对象中
+        // 而 with() 方法应用在 ORM 查询构造器中
+        return view('orders.show',['order'=>$order->load(['items.productSku','items.product'])]);
+
+        /* 也可以使用常用的compact方法返回数据 */
+        // 先延迟加载
+        // $order = $order->load(['items.productSku', 'items.product']);
+        // 再 compact()
+        // return view('orders.show', compact('order'));
     }
 
     // 保存订单数据

@@ -60,13 +60,17 @@ Route::group(['middleware'=>'auth'],function(){
         Route::delete('cart/{sku}', 'CartController@remove')->name('cart.remove');
 
         // Order 订单路由
-        // 保存创建订单
+        // 创建订单
         Route::post('orders', 'OrdersController@store')->name('orders.store');
+        // 订单列表
         Route::get('orders', 'OrdersController@index')->name('orders.index');
+        // 订单详情
+        Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
 
     });
 
-    // 结束
+    // CheckEmailVerified中间件 结束
+
 });
 
 Route::get('products/{product}','ProductsController@show')->name('products.show');
