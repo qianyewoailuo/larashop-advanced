@@ -14,6 +14,18 @@ use App\Jobs\CloseOrder;
 
 class OrdersController extends Controller
 {
+    public function index(Request $request)
+    {
+        $orders = Order::query()
+            // 使用 with 方法预加载，避免N + 1问题
+            ->with(['items.product', 'items.productSku'])
+            ->where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate();
+
+        return view('orders.index', compact('orders'));
+    }
+
     // 保存订单数据
     public function store(OrderRequest $request)
     {
@@ -70,21 +82,21 @@ class OrdersController extends Controller
                 // 累计计算当前orderitem价格
                 $totalAmount += $sku->price * $data['amount'];
                 // 减库存并当库存不足时抛出异常
-                if($sku->decreaseStock($data['amount']) <= 0){
+                if ($sku->decreaseStock($data['amount']) <= 0) {
                     throw new InvalidRequestException('库存不足');
                 }
             }
             // 更新订单总金额
-            $order->update(['total_amount'=>$totalAmount]);
+            $order->update(['total_amount' => $totalAmount]);
 
             // 将下单的商品从购物车中移除
             $skuIds = collect($request->input('items'))->pluck('sku_id');
-            $user->cartItems()->whereIn('product_sku_id',$skuIds)->delete();
+            $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
             // 将 DB::transaction() 的返回值从闭包中传递出去
             return $order;
         });
         // 暂时设定在 heroku 环境下不开启延迟队列任务
-        if(!getenv('IS_IN_HEROKU')){
+        if (!getenv('IS_IN_HEROKU')) {
             // 开启延迟执行队列任务
             $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
         }
