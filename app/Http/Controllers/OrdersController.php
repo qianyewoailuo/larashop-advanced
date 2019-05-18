@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\ProductSku;
 use App\Http\Requests\OrderRequest;
 use App\Exceptions\InvalidRequestException;
+use App\Jobs\CloseOrder;
 
 class OrdersController extends Controller
 {
@@ -82,7 +83,11 @@ class OrdersController extends Controller
             // 将 DB::transaction() 的返回值从闭包中传递出去
             return $order;
         });
-
+        // 暂时设定在 heroku 环境下不开启延迟队列任务
+        if(!getenv('IS_IN_HEROKU')){
+            // 开启延迟执行队列任务
+            $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
+        }
         return $order;
     }
 }
