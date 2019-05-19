@@ -10,6 +10,8 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Show;
+use Illuminate\Http\Request;
+use App\Exceptions\InvalidRequestException;
 
 class OrdersController extends Controller
 {
@@ -45,19 +47,36 @@ class OrdersController extends Controller
         });
     }
 
-    /**
-     * Edit interface.
-     *
-     * @param mixed   $id
-     * @param Content $content
-     * @return Content
-     */
-    public function edit($id, Content $content)
+    public function ship(Order $order,Request $request)
     {
-        return $content
-            ->header('Edit')
-            ->description('description')
-            ->body($this->form()->edit($id));
+        // 判断当前订单是否已支付
+        if(!$order->paid_at){
+            throw new InvalidRequestException('该订单尚未付款');
+        }
+        // 判断当前订单是否已发货
+        if($order->ship_status !== Order::SHIP_STATUS_PENDING){
+            throw new InvalidRequestException('该订单已发货');
+        }
+        // validate校验返回值
+        $data = $this->validate($request,[
+            'express_company' => 'required',
+            'express_no'      => 'required',
+        ],[],[
+            'express_company' => '物流公司',
+            'express_no'      => '物流单号',
+        ]);
+        // 将订单发货状态改为已发货并存入物流信息
+        $order->update([
+            'ship_status'   =>  Order::SHIP_STATUS_DELIVERED,
+            // order 模型中已经在 $cats 属性中指明了 ship_data 自动转换为json数据
+            // 所以可以直接把数组传输进去不用手动处理
+            'ship_data'     =>  $data,
+        ]);
+
+        // TODO 使用 快递接口 进行真实快递发货
+
+        // 返回上一页
+        return redirect()->back();
     }
 
     /**
