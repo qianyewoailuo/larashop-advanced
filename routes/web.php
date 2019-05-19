@@ -68,6 +68,11 @@ Route::group(['middleware'=>'auth'],function(){
         Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
         // 订单确认收货
         Route::post( 'orders/{order}/received', 'OrdersController@received')->name('orders.received');
+        // 订单评价页面
+        Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
+        // 发送评价
+        Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
+
 
         // Payment 支付路由
         Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
