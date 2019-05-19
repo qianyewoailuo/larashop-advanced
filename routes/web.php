@@ -67,6 +67,11 @@ Route::group(['middleware'=>'auth'],function(){
         // 订单详情
         Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
 
+        // Payment 支付路由
+        Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
+        // 前端回调
+        Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
+
     });
 
     // CheckEmailVerified中间件 结束
@@ -74,6 +79,9 @@ Route::group(['middleware'=>'auth'],function(){
 });
 
 Route::get('products/{product}','ProductsController@show')->name('products.show');
+
+// 服务器端回调的路由不能放到带有 auth 中间件的路由组中，因为支付宝的服务器请求不会带有认证信息
+Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
 
 // Alipay沙箱测试路由
 // Route::get('alipay', function () {
