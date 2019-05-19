@@ -13,6 +13,7 @@ use App\Http\Requests\OrderRequest;
 // use App\Jobs\CloseOrder;
 // use App\Services\CartService;
 use App\Services\OrderService;
+use App\Exceptions\InvalidRequestException;
 
 class OrdersController extends Controller
 {
@@ -45,7 +46,7 @@ class OrdersController extends Controller
         // return view('orders.show', compact('order'));
     }
 
-    // 保存订单数据 - 封装下面注释的 store 方法代码
+    // 保存订单数据 - 封装最下面注释的 store 方法代码
     public function store(OrderRequest $request, OrderService $orderService)
     {
         $user    = $request->user();
@@ -55,6 +56,28 @@ class OrdersController extends Controller
 
         // 使用Service模式下 OrderService 类封装的代码进行订单提交逻辑处理
         return $orderService->store($user,$address,$remark,$items);
+    }
+
+    // 确认收货
+    public function received(Order $order,Request $request)
+    {
+        // 检验权限
+        $this->authorize('own',$order);
+
+        // 判断订单的发货状态是否为已发货
+        if($order->ship_status !== Order::SHIP_STATUS_DELIVERED){
+            throw new InvalidRequestException('未发货或已确认收货');
+        }
+
+        // 更新发货状态为已收到
+        $order->update([
+            'ship_status' => Order::SHIP_STATUS_RECEIVED,
+        ]);
+
+        // 返回原页面
+        // return redirect()->back();
+        // 由于从表单提交改成了 AJAX 请求 所以返回的修改
+        return $order;
     }
 
     // 保存订单数据

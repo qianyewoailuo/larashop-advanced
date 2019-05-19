@@ -66,6 +66,8 @@ Route::group(['middleware'=>'auth'],function(){
         Route::get('orders', 'OrdersController@index')->name('orders.index');
         // 订单详情
         Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
+        // 订单确认收货
+        Route::post( 'orders/{order}/received', 'OrdersController@received')->name('orders.received');
 
         // Payment 支付路由
         Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
