@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Exceptions\InvalidRequestException;
 use Carbon\Carbon;
+use App\Events\OrderPaid;
 
 class PaymentController extends Controller
 {
@@ -68,9 +69,17 @@ class PaymentController extends Controller
             'payment_no' => $data->trade_no
         ]);
 
+        // 调用事件,这里考虑到以后微信支付的重用问题将调用放到新方法中
+        $this->afterPaid($order);
+
         return app('aplipay')->success();
         // 服务端的请求无法看到返回值不能使用dd,所以使用日志保存测试
         // \Log::debug('Alipay notify',$data->all());
+    }
+
+    protected function afterPaid(Order $order)
+    {
+        event(new OrderPaid($order));
     }
 
     // TODO 星期日星期一沙箱系统维护 先保存代码暂停测试

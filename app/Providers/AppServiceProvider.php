@@ -38,6 +38,8 @@ class AppServiceProvider extends ServiceProvider
                 $config['mode']         = 'dev';
                 $config['log']['level'] = Logger::DEBUG;
             } else {
+                // 正式部署线上环境时不能使用沙箱,不过测试网站暂时使用吧
+                $config['mode']         = 'dev';
                 $config['log']['level'] = Logger::WARNING;
             }
             // 调用 Yansongda\Pay 来创建一个支付宝支付对象

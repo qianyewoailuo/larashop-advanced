@@ -8,6 +8,9 @@ use Illuminate\Auth\Events\Registered;
 use App\Listeners\RegisteredListener;
 use App\Events\OrderReviewd;
 use App\Listeners\UpdateProductRating;
+use App\Events\OrderPaid;
+use App\Listeners\UpdateProductSoldCountListener;
+use App\Listeners\SendOrderPaidMail;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,12 +21,18 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        // 注册监听
+        // 注册事件监听关联
         Registered::class => [
             RegisteredListener::class
         ],
 
-        // 评分监听
+        // 销量事件监听关联
+        OrderPaid::class => [
+            UpdateProductSoldCountListener::class,
+            SendOrderPaidMail::class
+        ],
+
+        // 评分事件监听关联
         OrderReviewd::class => [
             UpdateProductRating::class
         ]
