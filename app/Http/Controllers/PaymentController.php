@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Exceptions\InvalidRequestException;
+use Carbon\Carbon;
 
 class PaymentController extends Controller
 {
@@ -33,17 +34,43 @@ class PaymentController extends Controller
     // alipay 前端回调
     public function alipayReturn()
     {
-        // 检验提交的参数是否合法
-        $data = app('alipay')->verify();
-        // 检测回调返回的数据有什么
-        dd($data);
+        try{
+            // 检验提交的参数是否合法
+            $data = app('alipay')->verify();
+            // 检测回调返回的数据有什么
+            // dd($data);
+        } catch(\Eception $e) {
+            return view('pages.error', ['msg'=>'数据不正确']);
+        }
+
+        return view('pages.success',['msg'=>'付款成功']);
+
     }
     // aplipay 服务器端回调
     public function alipayNotify()
     {
+        // 校验输入的参数
         $data = app('alipay')->verify();
+        // 获取订单流水号 out_trader_no 是支付宝回调的参数 即商家提供的订单号
+        $order = Order::query()->where('no',$data->out_trade_no)->first();
+        // 判断该笔支付订单是否存在
+        if(!$order){
+            return 'fail';
+        }
+        // 如果这笔订单的状态已经是已支付
+        if($order->paid_at){
+            return app('alipay')->success();
+        }
+
+        $order->update([
+            'paid_at' => Carbon::now(),
+            'payment_method' => 'alipay',
+            'payment_no' => $data->trade_no
+        ]);
+
+        return app('aplipay')->success();
         // 服务端的请求无法看到返回值不能使用dd,所以使用日志保存测试
-        \Log::debug('Alipay notify',$data->all());
+        // \Log::debug('Alipay notify',$data->all());
     }
 
     // TODO 星期日星期一沙箱系统维护 先保存代码暂停测试

@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
             $config = config('pay.alipay');
             // 前端与服务端回调
             $config['notify_url'] = route('payment.alipay.notify');
+            // loacl测试用 从 https://requestbin.fullcontact.com/ 获取
+            // $config['notify_url'] = 'http://requestbin.fullcontact.com/1fldi8f1';
             $config['return_url'] = route('payment.alipay.return');
             // 判断当前项目运行环境是否为线上环境
             if (app()->environment() !== 'production') {
