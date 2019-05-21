@@ -101,6 +101,12 @@
                         @endif
                      </div>
                   </div>
+                  @if(isset($order->extra['refund_disagree_reason']))
+                  <div>
+                     <span>拒绝退款理由：</span>
+                     <div class="value">{{ $order->extra['refund_disagree_reason'] }}</div>
+                  </div>
+                  @endif
                   <!-- 支付按钮开始 -->
                   @if(!$order->paid_at && !$order->closed)
                   <div class="payment-buttons">
@@ -176,7 +182,7 @@
                return;
             }
             // 请求退款接口
-            axios.post('{{ route('orders.apply_refund', [$order->id]) }}', {reason: input})
+            axios.post("{{ route('orders.apply_refund', [$order->id]) }}", {reason: input})
                .then(function() {
                   swal('申请退款成功', '', 'success').then(function() {
                      // 用户点击弹框上按钮时重新加载页面
