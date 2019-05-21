@@ -48,21 +48,21 @@ class OrdersController extends Controller
         });
     }
 
-    public function ship(Order $order,Request $request)
+    public function ship(Order $order, Request $request)
     {
         // 判断当前订单是否已支付
-        if(!$order->paid_at){
+        if (!$order->paid_at) {
             throw new InvalidRequestException('该订单尚未付款');
         }
         // 判断当前订单是否已发货
-        if($order->ship_status !== Order::SHIP_STATUS_PENDING){
+        if ($order->ship_status !== Order::SHIP_STATUS_PENDING) {
             throw new InvalidRequestException('该订单已发货');
         }
         // validate校验返回值
-        $data = $this->validate($request,[
+        $data = $this->validate($request, [
             'express_company' => 'required',
             'express_no'      => 'required',
-        ],[],[
+        ], [], [
             'express_company' => '物流公司',
             'express_no'      => '物流单号',
         ]);
@@ -81,19 +81,19 @@ class OrdersController extends Controller
     }
 
     // 处理退款
-    public function handleRefund(Order $order,HandleRefundRequest $request)
+    public function handleRefund(Order $order, HandleRefundRequest $request)
     {
         // 判断订单状态是否正确
-        if($order->refund_status !== Order::REFUND_STATUS_APPLIED){
+        if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
             throw new InvalidRequestException('订单状态不正确');
         }
         // 是否同意退款
-        if($request->input('agree')){
-            // 同意退款的逻辑暂时留空
-            // TODO
+        if ($request->input('agress')) {
+            // 调用退款逻辑
+            $this->_refundOrder($order);
         } else {
             // 将拒绝退款的理由放到订单的 extra 字段中
-            $extra = $order->extra ?:[];
+            $extra = $order->extra ?: [];
             $extra['refund_disagree_reason'] = $request->input('reason');
             // 将订单退款状态改为未退款
             $order->update([
@@ -103,7 +103,50 @@ class OrdersController extends Controller
 
             return $order;
         }
+    }
 
+    // 同意退款逻辑
+    public function _refundOrder(Order $order)
+    {
+        // 判断该订单的支付方式
+        switch ($order->payment_method) {
+            case 'wechat':
+                # code...
+                // TODO 微信支付因商户申请暂时不能完成
+                break;
+            case 'alipay':
+                // 生成退款订单流水号
+                $refundNo = Order::getAvailableRefundNo();
+                // 调用支付宝支付实例的 refund 方法
+                $ret = app('alipay')->refund([
+                    'out_trade_no'   => $order->no,            // 订单流水号
+                    'refund_amount'  => $order->total_amount,  // 退款金额
+                    'out_request_no' => $refundNo,             // 退款订单流水号
+                ]);
+                // 根据支付宝的文档，如果返回值里有 sub_code 字段说明退款失败
+                if($ret->sub_code){
+                    // 将退款失败的原因存入 extra 字段
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $ret->sub_code;
+                    // 将订单的退款状态标志为退款失败
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_FAILED,
+                        'extra' => $extra,
+                    ]);
+                } else {
+                    // 退款成功,并将退款状态更改并保存
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_SUCCESS,
+                    ]);
+                }
+                break;
+            default:
+                // 原则上不可能出现，这个只是为了代码健壮性
+                throw new InternalException('未知订单支付方式：' . $order->payment_method);
+                break;
+        }
     }
 
     /**
