@@ -18,9 +18,9 @@ Route::get('products', 'ProductsController@index')->name('products.index');
 
 Auth::routes();
 
-Route::group(['middleware'=>'auth'],function(){
+Route::group(['middleware' => 'auth'], function () {
     // 邮箱验证提示路由
-    Route::get('/email_verify_notice','PagesController@emailVerifyNotice')->name('email_verify_notice');
+    Route::get('/email_verify_notice', 'PagesController@emailVerifyNotice')->name('email_verify_notice');
     // 邮箱验证
     Route::get('/email_verification/verify', 'EmailVerificationController@verify')->name('email_verification.verify');
     // 邮件发送
@@ -28,7 +28,7 @@ Route::group(['middleware'=>'auth'],function(){
 
     // CheckEmailVerified 中间件开始
 
-    Route::group(['middleware'=>'email_verified'],function(){
+    Route::group(['middleware' => 'email_verified'], function () {
         // UserAddresses :
         // index
         Route::get('user_addresses', 'UserAddressesController@index')->name('user_addresses.index');
@@ -37,7 +37,7 @@ Route::group(['middleware'=>'auth'],function(){
         // store
         Route::post('user_addresses', 'UserAddressesController@store')->name('user_addresses.store');
         // edit
-        Route::get('user_addresses/{user_address}','UserAddressesController@edit')->name('user_addresses.edit');
+        Route::get('user_addresses/{user_address}', 'UserAddressesController@edit')->name('user_addresses.edit');
         // update
         Route::put('user_addresses/{user_address}', 'UserAddressesController@update')->name('user_addresses.update');
         // delete
@@ -45,7 +45,7 @@ Route::group(['middleware'=>'auth'],function(){
 
         // Products :
         // favor
-        Route::post('products/{product}/favorite','ProductsController@favor')->name('products.favor');
+        Route::post('products/{product}/favorite', 'ProductsController@favor')->name('products.favor');
         // disfavor
         Route::delete('products/{product}/favorite', 'ProductsController@disfavor')->name('products.disfavor');
         // favorites 收藏商品列表
@@ -53,7 +53,7 @@ Route::group(['middleware'=>'auth'],function(){
 
         // Cart 购物车
         // 添加入购物车
-        Route::post('cart','CartController@add')->name('cart.add');
+        Route::post('cart', 'CartController@add')->name('cart.add');
         // 购物车列表
         Route::get('cart', 'CartController@index')->name('cart.index');
         // 移除购物车商品
@@ -67,25 +67,26 @@ Route::group(['middleware'=>'auth'],function(){
         // 订单详情
         Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
         // 订单确认收货
-        Route::post( 'orders/{order}/received', 'OrdersController@received')->name('orders.received');
+        Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received');
         // 订单评价页面
         Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
         // 发送评价
         Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
+        // 订单退款
+        Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
 
 
         // Payment 支付路由
         Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
         // 前端回调
         Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
-
     });
 
     // CheckEmailVerified中间件 结束
 
 });
 
-Route::get('products/{product}','ProductsController@show')->name('products.show');
+Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 
 // 服务器端回调的路由不能放到带有 auth 中间件的路由组中，因为支付宝的服务器请求不会带有认证信息
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');

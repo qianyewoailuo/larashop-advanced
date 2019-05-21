@@ -16,6 +16,7 @@ use App\Services\OrderService;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\SendReviewRequest;
 use App\Events\OrderReviewd;
+use App\Http\Requests\ApplyRefundRequest;
 
 class OrdersController extends Controller
 {
@@ -57,17 +58,17 @@ class OrdersController extends Controller
         $items   = $request->input('items');
 
         // 使用Service模式下 OrderService 类封装的代码进行订单提交逻辑处理
-        return $orderService->store($user,$address,$remark,$items);
+        return $orderService->store($user, $address, $remark, $items);
     }
 
     // 确认收货
-    public function received(Order $order,Request $request)
+    public function received(Order $order, Request $request)
     {
         // 检验权限
-        $this->authorize('own',$order);
+        $this->authorize('own', $order);
 
         // 判断订单的发货状态是否为已发货
-        if($order->ship_status !== Order::SHIP_STATUS_DELIVERED){
+        if ($order->ship_status !== Order::SHIP_STATUS_DELIVERED) {
             throw new InvalidRequestException('未发货或已确认收货');
         }
 
@@ -96,7 +97,7 @@ class OrdersController extends Controller
     }
 
     // 发送评价
-    public function sendReview(Order $order,SendReviewRequest $request)
+    public function sendReview(Order $order, SendReviewRequest $request)
     {
         // 校验权限
         $this->authorize('own', $order);
@@ -128,6 +129,32 @@ class OrdersController extends Controller
         });
 
         return redirect()->back();
+    }
+
+    // 退款
+    public function applyRefund(Order $order, ApplyRefundRequest $requset)
+    {
+        $this->authorize('own', $order);
+
+        // 判断订单是否已付款
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('该订单尚未支付,不能退款');
+        }
+        // 判断退款状态是否正确
+        if ($order->refund_status !== Order::REFUND_STATUS_PENDING) {
+            throw new InvalidRequestException('该订单已经申请过退款,请勿重复提交');
+        }
+        // 将用户输入的退款理由放到订单的 extra 字段中
+        $extra  = $order->extra ?: [];        // 当前extra是否有值 有使用原有的,否则使用空数组
+        $extra['refund_reason'] = $requset->input('reason');
+        // 将订单退款状态改为已申请退款
+        $order->update([
+            'refund_status' => Order::REFUND_STATUS_APPLIED,
+            'extra'         => $extra,
+        ]);
+
+        // 返回
+        return $order;
     }
 
 

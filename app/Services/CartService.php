@@ -18,7 +18,7 @@ class CartService
         // 从数据库中查询该商品是否已经在购物车中
         if($item = $user->cartItems()->where('product_sku_id',$skuId)->first()){
             // 如果存在则直接叠加商品数量
-            $item->update(['amount'=>$item->amount + $item]);
+            $item->update(['amount'=>$item->amount + $amount]);
         } else {
             // 否则创建一个新的购物车记录
             $item = new CartItem(['amount'=>$amount]);
