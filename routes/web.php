@@ -80,6 +80,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
         // 前端回调
         Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
+
+        // couponcodes
+        Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
     });
 
     // CheckEmailVerified中间件 结束
