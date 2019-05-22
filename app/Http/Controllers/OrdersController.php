@@ -54,11 +54,19 @@ class OrdersController extends Controller
     {
         $user    = $request->user();
         $address = UserAddress::query()->find($request->input('address_id'));
+        $coupon = null;
         $remark  = $request->input('remark');
         $items   = $request->input('items');
+        // 如果用户提交了优惠码
+        if ($code = $request->input('coupon_code')) {
+            $coupon = CouponCode::where('code', $code)->first();
+            if (!$coupon) {
+                throw new CouponCodeUnavailableException('优惠券不存在');
+            }
+        }
 
         // 使用Service模式下 OrderService 类封装的代码进行订单提交逻辑处理
-        return $orderService->store($user, $address, $remark, $items);
+        return $orderService->store($user, $address, $remark, $items, $coupon);
     }
 
     // 确认收货
