@@ -30,4 +30,7 @@ Route::group([
     $router->post('orders/{order}/ship', 'OrdersController@ship')->name('admin.orders.ship');
     // 退款
     $router->post('orders/{order}/refund', 'OrdersController@handleRefund')->name('admin.orders.handle_refund');
+
+    // couponCodes
+    $router->get('coupon_codes', 'CouponCodesController@index');
 });
