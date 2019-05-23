@@ -51,6 +51,10 @@ class CloseOrder implements ShouldQueue
                 // 添加入库
                 $item->productSku->addStock($item->amount);
             }
+            // 若使用优惠券,订单关闭后恢复优惠券用量
+            if($this->order->couponCode){
+                $this->order->couponCode->changeUsed(false);
+            }
         });
     }
 }

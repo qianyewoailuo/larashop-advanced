@@ -81,6 +81,14 @@
                   @endif
                </div>
                <div class="order-summary text-right">
+                  <!-- 订单优惠券 -->
+                  @if($order->couponCode)
+                  <div class="text-primary">
+                     <span>优惠信息：</span>
+                     <div class="value">{{ $order->couponCode->description }}</div>
+                  </div>
+                  @endif
+                  <!-- 订单总价 -->
                   <div class="total-amount">
                      <span>订单总价：</span>
                      <div class="value">￥{{ $order->total_amount }}</div>
@@ -182,7 +190,9 @@
                return;
             }
             // 请求退款接口
-            axios.post("{{ route('orders.apply_refund', [$order->id]) }}", {reason: input})
+            axios.post("{{ route('orders.apply_refund', [$order->id]) }}", {
+                  reason: input
+               })
                .then(function() {
                   swal('申请退款成功', '', 'success').then(function() {
                      // 用户点击弹框上按钮时重新加载页面

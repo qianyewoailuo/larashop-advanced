@@ -9,7 +9,7 @@ use App\Exceptions\CouponCodeUnavailableException;
 
 class CouponCodesController extends Controller
 {
-    public function show($code)
+    public function show(Request $request, $code)
     {
         // 如果优惠券不存在返回404
         // if(!$record = CouponCode::where('code',$code)->first()){
@@ -32,11 +32,11 @@ class CouponCodesController extends Controller
         // }
 
         // 使用异常处理
-        if (!$record = CouponCode::where('code', $code)->first()){
+        if (!$record = CouponCode::where('code', $code)->first()) {
             throw new CouponCodeUnavailableException('优惠券不存在');
         }
         // 检查是否有异常
-        $record->checkAvailable();
+        $record->checkAvailable($request->user());
 
         return $record;
     }
