@@ -13,7 +13,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         $users = factory(User::class)
-                ->times(10)
+                ->times(40)
                 ->make();
 
         $users = $users->makeVisible('password','remember_token')->toArray();
