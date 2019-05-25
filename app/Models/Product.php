@@ -18,6 +18,12 @@ class Product extends Model
     {
         return $this->hasMany(ProductSku::class);
     }
+    // 一个商品属于一个类目
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     // 获取完整imgageUrl属性
     public function getImageUrlAttribute()
     {
