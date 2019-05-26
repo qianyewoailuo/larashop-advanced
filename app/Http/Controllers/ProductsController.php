@@ -74,9 +74,9 @@ class ProductsController extends Controller
         $category = $category??null;
 
         // 类目树结构数据
-        $categoryTree = $categoryService->getCategoryTree();
+        // $categoryTree = $categoryService->getCategoryTree();   // 在 Viewcomposers 中已定义可以删除
 
-        return view('products.index', compact('products', 'filters','category','categoryTree'));
+        return view('products.index', compact('products', 'filters','category'));
     }
 
     public function show(Product $product, Request $request)
