@@ -7,10 +7,11 @@ use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
 use App\Models\OrderItem;
 use App\Models\Category;
+use App\Services\CategoryService;
 
 class ProductsController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request,CategoryService $categoryService)
     {
         // 创建一个查询构造器
         $builder = Product::query()->where('on_sale', true);
@@ -72,7 +73,10 @@ class ProductsController extends Controller
         // ?? 判断等于 isset() | ?: 判断等于 !empty()
         $category = $category??null;
 
-        return view('products.index', compact('products', 'filters','category'));
+        // 类目树结构数据
+        $categoryTree = $categoryService->getCategoryTree();
+
+        return view('products.index', compact('products', 'filters','category','categoryTree'));
     }
 
     public function show(Product $product, Request $request)
