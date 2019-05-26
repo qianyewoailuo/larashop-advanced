@@ -16,6 +16,8 @@ $factory->define(App\Models\Product::class, function (Faker $faker) {
         "https://lccdn.phphub.org/uploads/images/201806/01/5320/pa7DrV43Mw.jpg",
         "https://s2.ax1x.com/2019/05/23/VPU8XT.jpg",
         "https://s2.ax1x.com/2019/05/23/VParPs.jpg",
+        "https://s2.ax1x.com/2019/05/23/VPBlOP.jpg",
+        "https://s2.ax1x.com/2019/05/23/VPBQyt.jpg",
         "https://s2.ax1x.com/2019/05/23/VPawVg.jpg",
 
     ]);

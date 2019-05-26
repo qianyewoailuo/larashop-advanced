@@ -8421,6 +8421,7 @@ body {
 .products-index-page .products-list .product-item .product-content .top img,
 .products-favorites-page .products-list .product-item .product-content .top img {
   width: 100%;
+  height: 11em;
 }
 
 .products-index-page .products-list .product-item .product-content .top .price,
