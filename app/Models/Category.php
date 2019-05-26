@@ -34,13 +34,13 @@ class Category extends Model
         });
     }
 
-    // 内部关联
+    // 内部关联 - 子级属于父级
     public function parent()
     {
         return $this->belongsTo(Category::class);
     }
 
-    // 内部关联
+    // 内部关联 - 父级拥有多个子级
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
@@ -77,5 +77,6 @@ class Category extends Model
             ->pluck('name')
             ->push($this->name)
             ->implode(' - ');
+        // https://learnku.com/docs/laravel/5.8/collections/3916 集合方法参考
     }
 }
