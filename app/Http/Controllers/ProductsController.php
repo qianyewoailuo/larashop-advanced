@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
 use App\Models\OrderItem;
+use App\Models\Category;
 
 class ProductsController extends Controller
 {
@@ -31,6 +32,20 @@ class ProductsController extends Controller
             });
         }
 
+        // category 商品类目查询
+        if($request->input('category_id') && $category = Category::find($request->input('category_id'))){
+            // 如果这是一个父类目
+            if($category->is_directory){
+                // 则筛选出该父类目下的所有子类目商品
+                $builder->whereHas('category',function($query) use ($category){
+                    $query->where('path', 'like', $category->path . $category->id . '-%');
+                });
+            } else {
+                // 如果这不是一个父类目，则直接筛选此类目下的商品
+                $builder->where('category_id', $category->id);
+            }
+        }
+
         // order商品排序查询
         if ($order = $request->input('order', '')) {
             // 开始order排序查询
@@ -52,7 +67,12 @@ class ProductsController extends Controller
         // 查询与排序结束,开始分页获取结果集
         $products = $builder->paginate(16);
 
-        return view('products.index', compact('products', 'filters'));
+        // 类目查询
+        // 等价于 isset($category) ? $category : null
+        // ?? 判断等于 isset() | ?: 判断等于 !empty()
+        $category = $category??null;
+
+        return view('products.index', compact('products', 'filters','category'));
     }
 
     public function show(Product $product, Request $request)
