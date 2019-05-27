@@ -31,7 +31,7 @@ Route::group([
     // 退款
     $router->post('orders/{order}/refund', 'OrdersController@handleRefund')->name('admin.orders.handle_refund');
 
-    // couponCodes
+    // couponCodes 优惠券
     $router->get('coupon_codes', 'CouponCodesController@index');
     $router->post('coupon_codes', 'CouponCodesController@store');
     $router->get('coupon_codes/create', 'CouponCodesController@create');
@@ -47,4 +47,11 @@ Route::group([
     $router->put('categories/{id}', 'CategoriesController@update');
     $router->delete('categories/{id}', 'CategoriesController@destroy');
     $router->get('api/categories', 'CategoriesController@apiIndex');
+
+    // CrowdfundingProducts 众筹
+    $router->get('crowdfunding_products', 'CrowdfundingProductsController@index');
+    $router->get('crowdfunding_products/create', 'CrowdfundingProductsController@create');
+    $router->post('crowdfunding_products', 'CrowdfundingProductsController@store');
+    $router->get('crowdfunding_products/{id}/edit', 'CrowdfundingProductsController@edit');
+    $router->put('crowdfunding_products/{id}', 'CrowdfundingProductsController@update');
 });
