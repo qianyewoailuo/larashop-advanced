@@ -11,6 +11,7 @@ use App\Listeners\UpdateProductRating;
 use App\Events\OrderPaid;
 use App\Listeners\UpdateProductSoldCountListener;
 use App\Listeners\SendOrderPaidMail;
+use App\Listeners\UpdateCrowdfundingProductProgress;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -29,7 +30,8 @@ class EventServiceProvider extends ServiceProvider
         // 销量事件监听关联
         OrderPaid::class => [
             UpdateProductSoldCountListener::class,
-            SendOrderPaidMail::class
+            SendOrderPaidMail::class,
+            UpdateCrowdfundingProductProgress::class
         ],
 
         // 评分事件监听关联
