@@ -6,6 +6,7 @@ use Monolog\Logger;
 use Yansongda\Pay\Pay;
 use Illuminate\Support\ServiceProvider;
 use App\Http\ViewComposers\CategoryTreeComposer;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         // 除了上面的写法,还有辅助函数的写法
         // 当然考虑到5.8后不在直接支持辅助函数还是使用上面的写法比较好
         // view()->composer(['products.index', 'products.show'], 'App\Http\ViewComposers\CategoryTreeComposer');
+        Carbon::setLocale('zh');
     }
 
     /**

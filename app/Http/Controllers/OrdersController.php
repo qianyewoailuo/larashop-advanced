@@ -18,6 +18,8 @@ use App\Http\Requests\SendReviewRequest;
 use App\Events\OrderReviewd;
 use App\Http\Requests\ApplyRefundRequest;
 use App\Models\CouponCode;
+use App\Http\Requests\CrowdfundingOrderRequest;
+use App\Models\ProductSku;
 
 class OrdersController extends Controller
 {
@@ -68,6 +70,17 @@ class OrdersController extends Controller
 
         // 使用Service模式下 OrderService 类封装的代码进行订单提交逻辑处理
         return $orderService->store($user, $address, $remark, $items, $coupon);
+    }
+
+    // 保存众筹商品订单数据,即众筹下单
+    public function crowdfunding(CrowdfundingOrderRequest $request,OrderService $orderService)
+    {
+        $user    =  $request->user();
+        $sku     =  ProductSku::find($request->input('sku_id'));
+        $address =  UserAddress::find($request->input('address_id'));
+        $amount  =  $request->input('amount');
+
+        return $orderService->crowdfunding($user,$address,$sku,$amount);
     }
 
     // 确认收货

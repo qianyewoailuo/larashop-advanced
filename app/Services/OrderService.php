@@ -13,6 +13,7 @@ use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 use App\Models\CouponCode;
 use App\Exceptions\CouponCodeUnavailableException;
+use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
@@ -97,6 +98,55 @@ class OrderService
             // 直接使用辅助函数 dispatch() 开启延迟执行队列任务
             dispatch(new CloseOrder($order, config('app.order_ttl')));
         }
+
+        return $order;
+    }
+
+    // 众筹商品下单逻辑
+    public function crowdfunding(User $user,UserAddress $address,ProductSku $sku,$amount){
+        // 开启事务
+        $order = DB::transaction(function () use ($amount,$sku,$user,$address) {
+            // 更新地址最新使用时间
+            $address->update(['last_used_at'=>Carbon::now()]);
+
+            // 创建一个订单对象
+            $order = new Order([
+                'address'      =>  [
+                    'address'       => $address->full_address,
+                    'zip'           => $address->zip,
+                    'contact_name'  => $address->contact_name,
+                    'contact_phone' => $address->contact_phone,
+                ],
+                'remark'       => '',
+                'total_amount' => $sku->price * $amount,
+            ]);
+            // 关联用户,获取user_id
+            $order->user()->associate($user);
+            // 保存
+            $order->save();
+
+            // 创建一个新的订单商品项 order_item
+            $item = $order->items()->make([
+                'amount' => $amount,
+                'price'  => $sku->price,
+            ]);
+            $item->product()->associate($sku->product_id);
+            $item->productSku()->associate($sku);
+            $item->save();
+
+            // 扣减对应 SKU 的库存
+            if($sku->decreaseStock($amount) <= 0){
+                throw new InvalidRequestException('该商品库存不足');
+            }
+
+            return $order;
+        });
+
+        // 订单自动关闭设定
+        // 众筹结束秒数 = 众筹结束时间戳 - 当前时间戳
+        $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
+        // 开启订单自动关闭
+        dispatch(new CloseOrder($order,min(config('app.order_ttl'),$crowdfundingTtl)));
 
         return $order;
     }

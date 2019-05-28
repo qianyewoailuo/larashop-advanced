@@ -62,6 +62,8 @@ Route::group(['middleware' => 'auth'], function () {
         // Order 订单路由
         // 创建订单
         Route::post('orders', 'OrdersController@store')->name('orders.store');
+        // 创建众筹订单
+        Route::post('crowdfunding_orders','OrdersController@crowdfunding')->name('crowdfunding_orders.store');
         // 订单列表
         Route::get('orders', 'OrdersController@index')->name('orders.index');
         // 订单详情
