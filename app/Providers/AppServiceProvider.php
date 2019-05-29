@@ -37,7 +37,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('alipay', function () {
             $config = config('pay.alipay');
             // 前端与服务端回调
-            $config['notify_url'] = route('payment.alipay.notify');
+            // $config['notify_url'] = route('payment.alipay.notify');
+            // ngrok_url 内网穿透
+            $config['notify_url'] = ngrok_url('payment.alipay.notify');
+
+
             // loacl测试用 从 https://requestbin.fullcontact.com/ 获取
             // $config['notify_url'] = 'http://requestbin.fullcontact.com/slrhfhsl';
             $config['return_url'] = route('payment.alipay.return');

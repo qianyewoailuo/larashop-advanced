@@ -142,6 +142,8 @@ return [
     /* 订单自动取消时间 单位:秒 */
     'order_ttl' => '1800',
 
+    'ngrok_url' => env('NGROK_URL'),
+
     'providers' => [
 
         /*

@@ -72,7 +72,7 @@ class PaymentController extends Controller
         // 调用事件,这里考虑到以后微信支付的重用问题将调用放到新方法中
         $this->afterPaid($order);
 
-        return app('aplipay')->success();
+        return app('alipay')->success();
         // 服务端的请求无法看到返回值不能使用dd,所以使用日志保存测试
         // \Log::debug('Alipay notify',$data->all());
     }
