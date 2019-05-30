@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\CouponCode;
 use App\Exceptions\CouponCodeUnavailableException;
 use Illuminate\Support\Facades\DB;
+use App\Exceptions\InternalException;
 
 class OrderService
 {
@@ -104,11 +105,12 @@ class OrderService
     }
 
     // 众筹商品下单逻辑
-    public function crowdfunding(User $user,UserAddress $address,ProductSku $sku,$amount){
+    public function crowdfunding(User $user, UserAddress $address, ProductSku $sku, $amount)
+    {
         // 开启事务
-        $order = DB::transaction(function () use ($amount,$sku,$user,$address) {
+        $order = DB::transaction(function () use ($amount, $sku, $user, $address) {
             // 更新地址最新使用时间
-            $address->update(['last_used_at'=>Carbon::now()]);
+            $address->update(['last_used_at' => Carbon::now()]);
 
             // 创建一个订单对象
             $order = new Order([
@@ -137,7 +139,7 @@ class OrderService
             $item->save();
 
             // 扣减对应 SKU 的库存
-            if($sku->decreaseStock($amount) <= 0){
+            if ($sku->decreaseStock($amount) <= 0) {
                 throw new InvalidRequestException('该商品库存不足');
             }
 
@@ -148,8 +150,52 @@ class OrderService
         // 众筹结束秒数 = 众筹结束时间戳 - 当前时间戳
         $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
         // 开启订单自动关闭
-        dispatch(new CloseOrder($order,min(config('app.order_ttl'),$crowdfundingTtl)));
+        dispatch(new CloseOrder($order, min(config('app.order_ttl'), $crowdfundingTtl)));
 
         return $order;
+    }
+
+    // 订单退款逻辑
+    public function refundOrder(Order $order)
+    {
+        // 先判断支付方式
+        switch ($$order->payment_method) {
+            case 'wechat':
+                # code...
+                // TODO 微信支付因没有商户账号暂时不能完成
+                break;
+            case 'alipay':
+                // 生成退款订单流水号
+                $refundNo = Order::getAvailableRefundNo();
+                // 调用支付宝支付实例的 refund 方法
+                $ret = app('alipay')->refund([
+                    'out_trade_no'   =>  $order->no,
+                    'refund_amount'  =>  $order->total_amount,
+                    'out_request_no' =>  $refundNo,
+                ]);
+                // 根据支付宝文档如果返回值为 sub_code 说明退款失败
+                if ($ret->sub_code) {
+                    // 将退款失败的原因存入 extra 字段
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $ret->sub_code;
+                    // 将订单的退款状态标志为退款失败
+                    $order->update([
+                        'refund_no'     =>  $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_FAILED,
+                        'extra'         =>  $extra,
+                    ]);
+                } else {
+                    // 退款成功更新退款状态
+                    $order->update([
+                        'refund_status'  => Order::REFUND_STATUS_SUCCESS,
+                        'refund_no'      => $refundNo,
+                    ]);
+                }
+                break;
+            default:
+                // 原则上不可能出现,当为了代码健壮性预防
+                throw new InternalException('未知订单支付方式:' . $order->payment_method);
+                break;
+        }
     }
 }

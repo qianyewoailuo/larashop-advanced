@@ -19,7 +19,7 @@ class CrowdfundingProduct extends Model
     ];
 
     protected $fillable = [
-        'total_amount','target_amount','user_amount','status','end_at'
+        'total_amount','target_amount','user_count','status','end_at'
     ];
 
     protected $dates = ['end_at'];
