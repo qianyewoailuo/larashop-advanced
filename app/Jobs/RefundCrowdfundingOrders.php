@@ -24,7 +24,7 @@ class RefundCrowdfundingOrders implements ShouldQueue
      */
     public function __construct(CrowdfundingProduct $crowdfundingProduct)
     {
-        $this->$crowdfundingProduct = $crowdfundingProduct;
+        $this->crowdfundingProduct = $crowdfundingProduct;
     }
 
     /**

@@ -159,7 +159,7 @@ class OrderService
     public function refundOrder(Order $order)
     {
         // 先判断支付方式
-        switch ($$order->payment_method) {
+        switch ($order->payment_method) {
             case 'wechat':
                 # code...
                 // TODO 微信支付因没有商户账号暂时不能完成
